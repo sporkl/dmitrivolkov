@@ -28,10 +28,8 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=2
-FILE_NAME_0=39;HTML;0;EUTF-8;1;1;0;%2FVolumes%2FFILES%2F%2Cproj%2F%2Cold%2F2020%2Fdmitrivolkov_lua%2Fviews%2Fcontact.etlua;0;4
-FILE_NAME_1=1840;HTML;0;EUTF-8;1;1;0;%2FVolumes%2FFILES%2F%2Cproj%2F%2Cmaint%2Fdmitrivolkov%2Fabout.html;0;4
-FILE_NAME_2=1277;HTML;0;EUTF-8;1;1;0;%2FVolumes%2FFILES%2F%2Cproj%2F%2Cmaint%2Fdmitrivolkov%2Fcontact.html;0;4
+current_page=0
+FILE_NAME_0=0;HTML;0;EUTF-8;1;1;0;%2FVolumes%2FFILES%2F%2Cproj%2F%2Cmaint%2Fdmitrivolkov%2Fbuild%2Fabout.html;0;4
 
 [VTE]
 last_dir=/Users/dv
@@ -47,5 +45,8 @@ show_empty_dirs=true
 
 [build-menu]
 EX_00_LB=_Execute
-EX_00_CM=cd "%p"; php -S 127.0.0.1:8000
+EX_00_CM=cd "%p/build"; php -S 127.0.0.1:8000
 EX_00_WD=
+EX_01_LB=
+EX_01_CM=
+EX_01_WD=
