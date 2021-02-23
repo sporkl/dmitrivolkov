@@ -36,6 +36,10 @@ img {
 	height: auto;
 }
 
+iframe {
+	border: none;
+}
+
 /****** specifics styling ******/
 
 /* margined */
