@@ -39,20 +39,22 @@ img {
 /****** specifics styling ******/
 
 /* margined */
-.margined {
-	margin-left: 20%;
-	margin-right: 20%;
+@media screen and (min-width: 600px) {
+	.margined {
+		margin-left: 16%;
+		margin-right: 16%;
+	}
 }
 
 /* navigation bar */
 ul.navbar {
 	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	overflow: auto;
+	margin: 0em;
+	padding: 0em;
+	overflow: hidden;
 	display: inline-block;
 	background: #A6C166;
-	border-radius: 20%
+	border-radius: 1em;
 }
 
 li.navbar {
@@ -62,7 +64,7 @@ li.navbar {
 
 a.navbar {
 	display: block;
-	padding: 8px;	
+	padding: 0.5em;	
 }
 
 
@@ -72,17 +74,17 @@ img.profile {
 	width: 20%;
 	height: auto;
 	float: left;
-	margin-right: 8px;
+	margin-right: 0.5em;
 }
 
 /* metro.drone */
 img.mdappicon {
 	border-radius: 24%;
 	display: inline-block;
-	width: 10%;
+	width: 5em;
 	height: auto;
 	float: left;
-	margin-right: 8px;
+	margin-right: 1em;
 }
 
 .mdscreenshotcontainer {
@@ -95,8 +97,8 @@ img.mdappicon {
 .mdscreenshots {
 	float: left;
 	display: inline-block;
-	width: 256px;
-	padding: 8px;
+	width: 16em;
+	padding: 1em;
 }
 
 .mdscreenshotcontainer {
@@ -105,7 +107,7 @@ img.mdappicon {
 }
 .mdscreenshot {
     display: inline-block;
-    width: 256px;
+    width: 16em;
     white-space: normal;
 }
 
