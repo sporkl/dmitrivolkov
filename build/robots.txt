@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: http://dmitrivolkov.com/sitemap.xml
+Sitemap: http://www.dmitrivolkov.com/sitemap.xml
