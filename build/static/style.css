@@ -51,6 +51,12 @@ iframe {
 }
 
 /* navigation bar */
+.header {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 0em;
+	z-index: 32;
+}
 ul.navbar {
 	list-style-type: none;
 	margin: 0em;
@@ -69,6 +75,11 @@ li.navbar {
 a.navbar {
 	display: block;
 	padding: 0.5em;	
+}
+
+/* content */
+.content {
+	padding: 1em;
 }
 
 /* index */
