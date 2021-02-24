@@ -71,6 +71,17 @@ a.navbar {
 	padding: 0.5em;	
 }
 
+/* index */
+div.index-landscape-container {
+	position: relative;
+}
+
+div.index-landscape-text {
+	color: #E6E1DC;
+	padding: 1em;
+	position: absolute;
+	bottom: 33%
+}
 
 /* About */
 img.profile {
@@ -88,7 +99,7 @@ img.mdappicon {
 	width: 5em;
 	height: auto;
 	float: left;
-	margin-right: 1em;
+	margin-right: 0.5em;
 }
 
 .mdscreenshotcontainer {
