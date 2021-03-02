@@ -36,33 +36,49 @@ img {
 	height: auto;
 }
 
-iframe {
-	border: none;
-}
-
 /****** specifics styling ******/
 
 /* margined */
-@media screen and (min-width: 600px) {
+
+@media screen and (min-width: 1024px) {
 	.margined {
 		margin-left: 16%;
 		margin-right: 16%;
 	}
 }
 
+
 /* navigation bar */
 .header {
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0em;
+	margin: 0em;
+	padding: 0em;
 	z-index: 32;
 }
+
+iframe.header {
+	border: none;
+	height: 3em;
+	margin: 0em;
+	padding: 0em;
+}
+
+h1.header {
+	margin: 0em;
+	padding: 0em;
+	float: left;
+	text-decoration: underline;
+}
+
 ul.navbar {
 	list-style-type: none;
+	display: inline-block;
+	float: right;
 	margin: 0em;
 	padding: 0em;
 	overflow: hidden;
-	display: inline-block;
 	background: #A6C166;
 	border-radius: 1em;
 }
@@ -80,6 +96,7 @@ a.navbar {
 /* content */
 .content {
 	padding: 1em;
+	margin: 0em;
 }
 
 /* index */
@@ -91,12 +108,11 @@ div.index-landscape-text {
 	color: #E6E1DC;
 	padding: 1em;
 	position: absolute;
-	bottom: 33%
+	bottom: 32%
 }
 
 /* About */
 img.profile {
-	display: inline-block;
 	width: 20%;
 	height: auto;
 	float: left;
@@ -106,7 +122,6 @@ img.profile {
 /* metro.drone */
 img.mdappicon {
 	border-radius: 24%;
-	display: inline-block;
 	width: 5em;
 	height: auto;
 	float: left;
@@ -122,7 +137,6 @@ img.mdappicon {
 
 .mdscreenshots {
 	float: left;
-	display: inline-block;
 	width: 16em;
 	padding: 1em;
 }
