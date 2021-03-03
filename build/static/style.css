@@ -107,7 +107,8 @@ div.index-landscape-text {
 	color: #E6E1DC;
 	padding: 1em;
 	position: absolute;
-	bottom: 32%
+	top: 1em;
+	left: 1em;
 }
 
 /* About */
