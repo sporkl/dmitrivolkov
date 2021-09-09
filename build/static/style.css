@@ -48,7 +48,7 @@ img {
 }
 
 
-/* navigation bar */
+/* navigation bar and bottom bar */
 .header {
 	position: -webkit-sticky;
 	position: sticky;
@@ -92,6 +92,10 @@ a.navbar {
 	padding: 0.5em;	
 }
 
+.bottombar {
+	clear: both;
+}
+
 /* content */
 .content {
 	padding: 1em;
@@ -99,11 +103,11 @@ a.navbar {
 }
 
 /* index */
-div.index-landscape-container {
+.index-landscape-container {
 	position: relative;
 }
 
-div.index-landscape-text {
+.index-landscape-text {
 	color: #E6E1DC;
 	padding: 1em;
 	position: absolute;
@@ -111,12 +115,28 @@ div.index-landscape-text {
 	left: 1em;
 }
 
-/* About */
+.index-reference {
+	width: 25em;
+	float: right;
+	padding-left: 1em;
+}
+ul.summary {
+	list-style-type: none;
+	background: #A6C166;
+	border-radius: 1em;
+	padding: 0em;
+}
+
+li.summary {
+	display: block;
+	padding: 1em;
+}
+
 img.profile {
 	width: 20%;
 	height: auto;
 	float: left;
-	margin-right: 0.5em;
+	margin: 1em;
 }
 
 /* metro.drone */
