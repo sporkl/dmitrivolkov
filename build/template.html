@@ -1,29 +1,45 @@
 <!-- template.html -->
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="/static/style.css">
-	<title>(Dmitri Volkov)</title>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>(Dmitri Volkov)</title>
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/normalize.css">
+  <link rel="stylesheet" href="/skeleton.css">
+  <link rel="stylesheet" href="/custom.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/favicon.png">
+
 </head>
 <body>
 
-<div class="margined">
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe></div>
+    <h3>(Page name)</h3>
+    <br>
 
-	<div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe class="header"></div>
+    (content)
 
-	<div class="content">
-		<h2>(title)</h2>
-		(content)
-	</div>
+    <hr/>
+    <sub>All content copyright (c) Dmitri Volkov 2022 unless otherwise noted.</sub>
+  </div>
 
-	<div class="bottombar">
-		<hr></hr>
-		<sub>All content copyright (c) Dmitri Volkov 2021 unless otherwise noted.</sub>
-	</div>
-
-</div>
-
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 </html>
+
