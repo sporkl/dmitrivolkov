@@ -1,17 +1,35 @@
 <!-- header.html -->
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="/static/style.css">
+
+	<!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<meta charset="utf-8">
+
+	<!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+	<link rel="stylesheet" href="/normalize.css">
+	<link rel="stylesheet" href="/skeleton.css">
+	<link rel="stylesheet" href="/custom.css">
+
 </head>
+
 <body>
-	<a href="/" target="top"><h1 class="header">Dmitri Volkov</h1></a>
-	<ul class="navbar">
-		<li class="navbar"><a href="/" class="navbar" target="_top">Home</a></li>
-		<li class="navbar"><a href="/projects" class="navbar" target="_top">Projects</a></li>
-		<li class="navbar"><a href="/projects/metro.drone.html" class="navbar" target="_top">metro.drone</a></li>
-	</ul>
+	<div class="row bubble">
+		<div class="four columns"><a class="header" href="/" target="_top"><h3>Dmitri Volkov</h3></a></div>
+		<div class="one column u-pull-right"><p></p></div>
+		<div class="two columns u-pull-right"><a class="button button-primary" href="/projects/metro.drone" target="_top">metro.drone</a></div>
+		<div class="two columns u-pull-right"><a class="button button-primary" href="/projects" target="_top">Projects</a></div>
+	</div>
+
+	<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
+
 </html>

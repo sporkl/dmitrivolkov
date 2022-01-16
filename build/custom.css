@@ -1,0 +1,33 @@
+/* custom.css */
+
+/* header */
+.header {
+    top: 0rem;
+    margin: 0rem;
+    padding: 0rem;
+    z-index: 32;
+}
+
+iframe.header {
+	border: none;
+	height: 4.5rem;
+	margin: 0rem;
+	padding: 0rem;
+}
+
+a.header {
+    margin: 0rem;
+    padding: 0rem;
+}
+
+/* bubble */
+.bubble {
+    background-color: #A6C166;
+    border-radius: 1rem;
+    padding: 0.5rem;
+}
+
+/* appicon */
+img.appicon {
+    border-radius: 24%;
+}
