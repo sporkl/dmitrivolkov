@@ -1,49 +1,41 @@
 <!-- index.html -->
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="/static/style.css">
-	<title>Dmitri Volkov</title>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Dmitri Volkov</title>
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/normalize.css">
+  <link rel="stylesheet" href="/skeleton.css">
+  <link rel="stylesheet" href="/custom.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/favicon.png">
+
 </head>
 <body>
 
-<div class="margined">
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe></div>
 
-	<div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe class="header"></div>
-
-	<div class="content">
-
-		<div class="index-landscape-container">
-			<img src="/static/index_landscape.jpg" alt="Dramatic lanscape image"></img>
-			<div class="index-landscape-text">Here's a dramatic landscape. I'm so cool.</div>
-		</div>
-		
-		<h2>This is my website. Hope you like it!</h2>
-
-		<div class="index-info-container">
-
-			<div class="index-reference">
-				<ul class="summary">
-					<li class="summary"><a class="page-summary" href="/"><b>Home:</b></a> this page, summary of the other pages</li>
-					<li class="summary"><a class="page-summary" href="/projects"><b>Projects:</b></a> stuff I made</li>
-					<li class="summary"><a class="page-summary" href="/projects/metro.drone.html"><b>metro.drone:</b></a> baby of metronome and drone</li>
-				</ul>
-				
-				<ul class="summary">
-					<li class="summary"><b>Email:</b> <a href='&#109;ailto&#58;&#100;&#109;itri&#37;2&#69;%6F&#46;&#37;7&#54;o%&#54;Ckov&#64;gm%61%&#54;9&#37;6C&#46;c&#111;%6D'>dmitri&#46;&#111;&#46;volkov&#64;g&#109;&#97;i&#108;&#46;co&#109;</a></li>
-					<li class="summary"><b>YouTube:</b> <a href="https://www.youtube.com/channel/UCmvxVye1Am9aNpbg-CTZq_A">https://www.youtube.com/channel/UCmvxVye1Am9aNpbg-CTZq_A</a>
-					<li class="summary"><b>Discord:</b> @sporklpony#1991</li>
-					<li class="summary"><b>GitHub:</b> <a href="https://github.com/sporklpony">https://github.com/sporklpony</a></li>
-					<li class="summary"><b>GitLab:</b> <a href="https://gitlab.com/comradesparklepony">https://gitlab.com/comradesparklepony</a></li>
-				</ul>
-				
-			</div>
-
-			<div class="index-bio">
-				<img src="/static/about/IMG_3400.jpg" class="profile">
-
+    <img class="u-full-width" src="landscape.jpg" alt="Here's a dramatic landscape. I'm so cool.">
+    <h3>This is my website. Hope you like it!</h3>
+    <br>
+    <div class="row">
+      <div class="two-thirds column">
+        <img class="u-max-full-width" src="2021profile-wide.jpg" alt="Dmitri Volkov pictire">
 				<p>
 					Dmitri Volkov is an aspiring musician and computer scientist. His pursuit of music includes studying composition at the
 					Jacobs School of Music, with Dr. Don Freund. He also plays violin and trombone in JSOM ensembles, and is exploring other
@@ -54,20 +46,40 @@
 					Julia), has several apps available on the App and Google Play stores, and is pursuing a degree at Indiana University
 					Bloomington. Dmitri also wants you to know he doesn't usually write in the third person.
 				</p>
+      </div>
+      <div class="one-third column">
+        <div class="bubble">
+          <a href="/"><b>Home:</b></a> this page, summary of the other pages
+          <br><br>
+					<a href="/projects"><b>Projects:</b></a> stuff I made
+          <br><br>
+					<a href="/projects/metro.drone.html"><b>metro.drone:</b></a> baby of metronome and drone
+        </div>
+        <br><br>
+        <div class="bubble">
+          <b>Email:</b> <a
+              href='&#109;ailto&#58;&#100;&#109;itri&#37;2&#69;%6F&#46;&#37;7&#54;o%&#54;Ckov&#64;gm%61%&#54;9&#37;6C&#46;c&#111;%6D'>dmitri&#46;&#111;&#46;volkov&#64;g&#109;&#97;i&#108;&#46;co&#109;</a>
+          <br><br>
+          <b>YouTube:</b> <a
+              href="https://www.youtube.com/channel/UCmvxVye1Am9aNpbg-CTZq_A">https://www.youtube.com/channel/UCmvxVye1Am9aNpbg-CTZq_A</a>
+          <br><br>
+          <b>Discord:</b> @sporklpony#1991
+          <br><br>
+          <b>GitHub:</b> <a href="https://github.com/sporklpony">https://github.com/sporklpony</a>
+          <br><br>
+          <b>GitLab:</b> <a
+              href="https://gitlab.com/comradesparklepony">https://gitlab.com/comradesparklepony</a>
+        </div>
+        <br>
+        <a href="volkov-resume.pdf">Resume here.</a>
+      </div>
+    </div>
 
-				<a href="/static/about/volkov-resume.pdf">Resume here.</a>
-			</div>
+    <hr/>
+    <sub>All content copyright (c) Dmitri Volkov 2022 unless otherwise noted.</sub>
+  </div>
 
-		</div>
-		
-	</div>
-
-	<div class="bottombar">
-		<hr></hr>
-		<sub>All content copyright (c) Dmitri Volkov 2021 unless otherwise noted.</sub>
-	</div>
-
-</div>
-
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 </html>

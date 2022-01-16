@@ -1,32 +1,46 @@
 <!-- 404.html -->
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="/static/style.css">
-	<title>404 (Dmitri Volkov)</title>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>404 (Dmitri Volkov)</title>
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/normalize.css">
+  <link rel="stylesheet" href="/skeleton.css">
+  <link rel="stylesheet" href="/custom.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/favicon.png">
+
 </head>
 <body>
 
-<div class="margined">
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe></div>
+    <h3>404</h3>
+    <br>
 
-	<div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe class="header"></div>
+    <p>The page you have tried to access does not exist! Please head to the home page (linked below) and try to find what you need from there. Apologies for the inconvenience!</p>
+    <a href="/">https://dmitrivolkov.com</a>
 
-	<div class="content">
-		<h2>404</h2>
-		Uh oh! You appear to have tried to modulate to a page that does not exist. Please head to the <a href="/">home</a> page and try to navigate to your desired page from there.
-		Apologies for the inconvenience!
-		<br></br>
-		<a href="http://dmitrivolkov.com">dmitrivolkov.com</a>
-	</div>
+    <hr/>
+    <sub>All content copyright (c) Dmitri Volkov 2022 unless otherwise noted.</sub>
+  </div>
 
-	<div class="bottombar">
-		<hr></hr>
-		<sub>All content copyright (c) Dmitri Volkov 2021 unless otherwise noted.</sub>
-	</div>
-
-</div>
-
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 </body>
 </html>
+
