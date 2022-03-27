@@ -1,0 +1,67 @@
+<!-- template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Website Stack (Dmitri Volkov)</title>
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/normalize.css">
+  <link rel="stylesheet" href="/skeleton.css">
+  <link rel="stylesheet" href="/custom.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe></div>
+    <h3>Website Stack</h3>
+    <br>
+
+    <p>I thought it could be potentially useful to give a rundown of how this website works. I believe the solution I've found to build and host this website is quite practical, easy to tweak, and fun! For me at least.</p>
+
+    <p>
+      Firstly, how I build the website: raw html and css. I have a template file <a href="/template.html">/template.html</a> that I duplicate whenever I want to make a new webpage. I use a customized version of <a href="http://getskeleton.com/">skeleton.css</a> for styling, and for some conveience layout classes. Besides that, everything is boring straightforward html. No static site generation or server-side rendering, just simple hosting of static html pages. Feel free to view the source to view some of the good ol' handcrafted html! Html is really not bad at all to work with once a solid template and css are in place!
+    </p>
+
+    <p>
+      There is a <a href="/header">header.html</a> file which is embedded as an iframe in every webpage. This way if I want to change the navigation I only need to tweak one place. Otherwise, I'm not too worried about keeping consistency across the website; it hasn't been an issue yet, and if it does happen it can give the website a feeling of depth, history, and evolution through time. :)
+    </p>
+
+    <p>
+    All webpages are written in <code>index.html</code> files which are stored in a directories which corresponds to the url. This works automatically with most http servers, so e.g. <a href="http://dmitrivolkov.com/index.html">dmitrivolkov.com/index.html</a> can be accessed at <a href="http://dmitrivolkov.com">dmitrivolkov.com</a>, and <a href="http://dmitrivolkov.com/projects/index.html">dmitrivolkov.com/projects/index.html</a> can be accessed at <a href="http://dmitrivolkov.com/projects">dmitrivolkov.com/projects</a>. This also makes it incredibly easy to add subpages: I just add a subdirectory with an index.html. Furthermore, all resource files (images, audio files, etc.) are stored in the same directory as the webpage. This keeps things nice and organized, and therefore easy to maintain!
+    </p>
+
+    <p>
+    To host the website for development, I just run <code>python3 -m http.server</code> in the root directory. The published website is hosted with Netlify, using their free tier. I have Netlify set up to host the website from a GitHub repo, so making the latest changes public is as simple as a <code>git push</code>! <sub>I do keep seperate main and deploy branches, so there is an additional merge step, but it goes very quickly and easily. So a tiny bit more complicated than just a push, but not by much! :)</sub>
+    </p>
+
+    <p>
+    That's about it! Not terribly interesting, but I have found it to be simple and effective! The end.
+    </p>
+
+    updated 2022-03-26
+
+    <hr/>
+    <sub>All content copyright (c) Dmitri Volkov 2022 unless otherwise noted.</sub>
+  </div>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
+
