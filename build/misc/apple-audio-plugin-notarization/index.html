@@ -1,0 +1,103 @@
+<!-- misc/apple-audio-plugin-notarization/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Apple Audio Plugin Notarization (Dmitri Volkov)</title>
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="/normalize.css">
+  <link rel="stylesheet" href="/skeleton.css">
+  <link rel="stylesheet" href="/custom.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="static/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div class="container">
+    <div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe></div>
+    <h3>Apple Audio Plugin Notarization</h3>
+    <br>
+
+    <p>It took me a while to figure out how to properly notarize plugins for Apple devices. Now that I've finally got it, I want to document it here for myself and anyone else who may find it useful. So here's a full walkthrough from exporting from Xcode to having a packaged and notarized dmg file. Please note that to follow these steps, you must have an active Apple Developer Program membership.</p>
+
+    <b>1) Export the release versions of the plugins</b><br/><br/>
+
+    <p>I use JUCE and Xcode, so what works for me is: I go to Xcode, select the version of the plugin I want to export (VST3 or AU), then make sure to select "Any Mac (Apple Silicon, Intel)" before going to Product &gt; Archive. Then from the Organizer I Distribute Content &gt; Built Content so that I have the plugin file itself in an accessible place.</p>
+
+    <b>2) Create Developer ID Installer certificate and Developer ID Application certificate</b><br/><br/>
+
+    <p>On the Apple Developer website, <a href="https://developer.apple.com">developer.apple.com</a> , create Developer ID Installer and Developer ID Application certificates. Once they are created, download and install them to your computer.</p>
+
+    <b>3) Create an app-specific password for notarization</b><br/><br/>
+
+    <p>Head to <a href="https://appleid.apple.com">appleid.apple.com</a> and create an app-specific password for notarization. Make sure to copy this down somewhere, you'll need it for a later step. You only need to do this the first time you set up notarization on a device.</p>
+
+    <b>4) Sign the plugins</b><br/><br/>
+
+    <p>Now it's time to sign the plugins themselves. Even if they were signed as part of the Xcode export, it's important to re-sign them with the proper options. Use the following command (substituting "&lt;development team id&gt;" and "&lt;plugin file name &gt;" appropriately):</p>
+
+    <pre><code>codesign --force -s "Developer ID Application: &ltdevelopment team id&gt;" &lt;plugin file name&gt; --timestamp --options runtime</code></pre>
+
+    <p>Do this for each plugin individually. Also note that for whatever reason, the development team ID needs to be the whole name, not just the ten-character string. e.g. for me it would be "Dmitri Volkov (0123456789)" (that's not my 10-character string of course). If you installed the Developer ID Application certificate prproperly in step 2, you can can look up "Developer ID Application" in Keychain to see the exact string you should use.</p>
+
+    <b>5) Create the installer dmg</b><br/><br/>
+
+    <p>Place the plugin files and aliases to the proper install locations in a folder. For AU, this is <code>/Library/Audio/Plug-Ins/Components</code> . For VST3, this is <code>/Library/Audio/Plug-Ins/VST3</code> . Then open Disk Utility and use File &gt; New Image &gt; Image From Disk, and select the folder. Choose the "Read only" image format and the output location, then create the dmg.</p>
+
+    <b>6) Set up notarizing credentials</b><br/><br/>
+
+    <p>This step stores the notarization credentials for when the notarization actually happens. It's technically possible to skip this step and use a different command later, but most resources seem to reccomend doing it this way. Another advantage is that you only need to do this step once per machine. Use the following command, substituting appropriately:</p>
+
+    <pre><code>xcrun notarytool store-credentials --apple-id "&lt;apple id email&gt;" --team-id "&lt;development team id&gt;"</code></pre>
+
+    <p>When it asks for a profile name, I reccomend using "notarytool" . When it asks for a password, use the app-specific password obtained in step 3. Also note that for this step, the development team id is just the 10-character string, unlike step 4.</p>
+
+    <b>7) Notarize the installer!</b><br/><br/>
+
+    <p>Run the following command, substituting appropriately:</p>
+
+    <pre><code>xcrun notarytool submit &lt;installer file name&gt; --keychain-profile "notarytool" --wait</code></pre>
+
+    <p>If you chose to use a profile name other than "notarytool" in step 6, you should use that instead of "notarytool" in the command. If this goes well, you should get some text that says "accepted" or the like. If not, you can use the following command to get more info (substituting appropriately):</p>
+
+    <pre><code>xcrun notarytool info &lt;submission id&gt; --keychain-profile "notarytool"</code></pre>
+
+    <p>The submission id should have shown up when you ran the initial command, and again if you set a different profile name, you should use that instead of "notarytool."</p>
+
+    <b>8) Staple the notarization</b><br/><br/>
+
+    <p>My understanding of what this does is it attaches the notarization to the file itself somehow. I guess this is technically optional, but if you don't do this whoever uses the plugin needs an internet connection to check with Apple if the plugin is actually notarized or not. But this step is very easy and straightforward, so there's really no reason not to do it. Just use the following command, substituting appropriately:</p>
+
+    <pre><code>xcrun stapler staple &lt;installer file name&gt;</code></pre>
+
+    <b>That's it!</b><br/><br>
+
+    <p>The plugin and installer should now be all set for distribtion! I like to zip the installer before sending it out to make it a bit smaller, but whatver you do now is up to you. You are in control of your own future.</p>
+
+
+    <p>Huge thanks to <a href="https://sonosaurus.com">Sonosaurus</a> and EyalAmir in the The Audio Programmer discord server for helping me get this figured out!</p>
+    
+    updated 2022-09-07
+    <hr/>
+    <sub>All content copyright (c) Dmitri Volkov 2022 unless otherwise noted.</sub>
+  </div>
+
+<!-- End Document
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+</body>
+</html>
+
