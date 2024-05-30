@@ -1,0 +1,71 @@
+<!-- template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quadraphonic Setup in Bitwig 5(Dmitri Volkov)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/custom.css">
+  <link rel="icon" type="image/png" href="static/favicon.png">
+</head>
+<body>
+  <div class="container">
+    <div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe></div>
+    <h1>Quadraphonic Setup in Bitwig 5</h1>
+    <p>As of writing, Bitwig does not natively support quadraphonic (four-channel surround) audio. This is the workaround I use.</p>
+    <p>For a different approach, see here: <a href="https://bitwiggers.com/presets/0e7ad7d4-1480-4ecb-b7f9-000ee2cacb70/">bitwiggers.com/presets/0e7ad7d4-1480-4ecb-b7f9-000ee2cacb70/</a> .</p>
+    <p>The basic idea is to configure Bitwig to use two sets of stereo speakers (front and back), then hook them up to Bitwig's XY grid modulator where X controls pan and Y controls front/back.</p>
+
+    <b>(1) Create two stereo output buses, corresponding to the front and back speaker pairs.</b>
+    <p> <img src="1.jpg"> </p>
+    <p>Easy enough, just configure your audio settings appropriately.</p>
+
+    <b>(2) Create two FX tracks, each corresponding to an output bus, and route them appropriately.</b>
+    <p> <img src="2.jpg"> </p>
+    <p>We'll route the audio through these buses in a later step; setting this up gives control over the routing.</p>
+
+    <b>(3) Add a track and give it a Vector-4 modulator as a track modulator.</b>
+    <p>We'll use this Vector-4 modulator for 2d panning.</p>
+
+    <b>(4) Map the modulator things on the left and right to hard panning the track left and right accordingly.</b>
+    <p> <img src="3.jpg"> </p>
+    <p>Make sure to map both the top and the bottom thing on the left and right.
+    After this step, the Vector-4 should function like a simple 1D left-right pan.</p>
+
+    <b>(5) Map the modulator things on the top to send to the front speakers, and the ones on the back to send to the back speakers.</b>
+    <p> <img src="4.jpg"> </p>
+    <p>After this step, it should be possible to crossfade between the front and back speakers by moving the Vector-4 vertically.</p>
+
+    <b>(6) Make sure the modulation amounts are normalized </b>
+    <p> <img src="5.jpg"> </p>
+    <p>Make sure the inspector matches what is shown here, with only positive and negative 1s for the Vector-4 modulation amounts.
+    This ensures that the behavior of panning around the Vector-4 is mostly consistent.</p>
+
+    <b>(7) Mute the Master track.</b>
+    <p> <img src="6.jpg"> </p>
+    <p>The "Speakers" and "Speakers Back" already output to the speakers, so Master isn't doing anything necessary here.
+    That said, it still can be used to monitor the composite loudness of everything that's going on</p>
+
+    <b>Final thoughts.</b>
+    <p>That's the gist of the method.
+    One downside is that it doesn't use panning curve techniques (when panned between two speakers, it's necessary to mark up the volume for things to sound consistent).
+    But unlike the other method linked above, you can monitor all the levels, including the composite ones, directly in Bitwig's UI.</p>
+
+    <p>It does take some time to set up the first track, but once one track is set up, it's no issue to copy-paste it to create more.
+    As such, I recommend having a template track with this setup that you duplicate whenever you need a new track.</p>
+
+    <p>When exporting, select the two buses; Bitwig will export two stereo files, corresponding to the front two and back to speakers.
+    If you want to put the files into a true quad format, it's probably necessary to use another program.
+    I've used <a href="https://www.audacityteam.org/">Audacity</a> for this.</p>
+
+    <p>Hopefully Bitwig will add true proper multichannel support soon, but hopefully this can work as a stand-in until then.<p>
+    <p>I used this technique for <a href="https://youtu.be/xdDrYmgzRVE">Untitled 17</a>.</p>
+
+    <p>Alright, enough words, thanks for reading, and please feel free to let me know if you have any thoughts/questions.</p>
+
+    updated 2024-05-30
+    <hr/>
+    <sub>All content copyright (c) Dmitri Volkov 2024 unless otherwise noted.</sub>
+  </div>
+</body>
+</html>
