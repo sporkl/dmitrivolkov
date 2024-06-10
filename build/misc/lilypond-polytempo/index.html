@@ -1,0 +1,251 @@
+<!-- template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Lilypond Polytempo Notation (Dmitri Volkov)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/custom.css">
+  <link rel="icon" type="image/png" href="static/favicon.png">
+</head>
+<body>
+  <div class="container">
+    <div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe></div>
+    <h1>Lilypond Polytempo Notation</h1>
+
+    <p>Here's how to get polytempo engraving and MIDI rendering working correctly in Lilypond.
+    There's some info on the web, but it took me a while to figure out how to put everything together.
+    As such, I'm hoping this can be helpful for others.</p>
+
+    <p>As of writing, I'm quite new to LilyPond, and I only figured this out through lots of trial and error.
+    So please pardon if anything is unidiomatic or otherwise bad, and let me know if you have any suggestions!</p>
+
+    <b>(1) Set up the score</b>
+    
+    <p>Here's the basic starting template for polytempo projects in Lilypond:</p>
+
+<pre>
+\version "2.24.3"
+
+\score {
+
+  % music will go here
+
+	\layout {
+		\enablePolymeter
+		\context {
+			\Score
+			forbidBreakBetweenBarLines = ##f
+			\remove Metronome_mark_engraver
+		}
+		\context {
+			\Voice
+			\consists Metronome_mark_engraver
+			\remove Forbid_line_break_engraver
+		}
+  }
+
+	\midi {
+		\context {
+			\Score
+			\remove Tempo_performer
+			\remove Time_signature_performer
+		}
+	}
+}
+</pre>  
+
+    <p>I found this template through trial and error, so I'm honestly not exactly sure why it works. That said, it prevents Lilypond from automatically doing some stuff that we need to manually handle, and allows measures to take up multiple systems.</p>
+
+    <b>(2) Input the music</b>
+    <p>Need to have something to work with. For this example, the top part will have one bar at 45bpm and another at 90bpm, and the bottom part will have two bars at 60bpm.</p>
+
+<pre>
+\version "2.24.3"
+
+\score {
+
+<<
+  \new Staff {
+    \tempo 4 = 45
+    a'4 b'4 c''4 e''4 |
+    \tempo 4 = 90
+    d''4 c''4 b'4 a'4 |
+  }
+  \new Staff {
+    \tempo 4 = 60
+    a'4 b'4 c''4 e''4 |
+    d''4 c''4 b'4 a'4 |
+  }
+>>
+
+	\layout {
+		\enablePolymeter
+		\context {
+			\Score
+			forbidBreakBetweenBarLines = ##f
+			\remove Metronome_mark_engraver
+		}
+		\context {
+			\Voice
+			\consists Metronome_mark_engraver
+			\remove Forbid_line_break_engraver
+		}
+	}
+
+	\midi {
+		\context {
+			\Score
+			\remove Tempo_performer
+			\remove Time_signature_performer
+		}
+	}
+}
+</pre>  
+    
+    <b>(3) Manually handle bar lines</b>
+
+    <p>If we let Lilypond try to handle bar lines, it will place a bar line in every part whenever there's one in the first part. As such, we need to instead handle bar lines manually.</p>
+
+    <p>We do this by adding <code>\set Staff.measureBarType = ""</code> in each staff. We then put <code>\bar "|"</code> wherever we want a barline.</p>
+
+<pre>
+\version "2.24.3"
+
+\score {
+
+<<
+  \new Staff {
+    \set Staff.measureBarType = ""
+    \tempo 4 = 45
+    a'4 b'4 c''4 e''4 \bar "|"
+    \tempo 4 = 90
+    d''4 c''4 b'4 a'4 \bar "|"
+  }
+  \new Staff {
+    \set Staff.measureBarType = ""
+    \tempo 4 = 60
+    a'4 b'4 c''4 e''4 \bar "|"
+    d''4 c''4 b'4 a'4 \bar "|"
+  }
+>>
+
+	\layout {
+		\enablePolymeter
+		\context {
+			\Score
+			forbidBreakBetweenBarLines = ##f
+			\remove Metronome_mark_engraver
+		}
+		\context {
+			\Voice
+			\consists Metronome_mark_engraver
+			\remove Forbid_line_break_engraver
+		}
+	}
+
+	\midi {
+		\context {
+			\Score
+			\remove Tempo_performer
+			\remove Time_signature_performer
+		}
+	}
+}
+</pre>  
+
+    <b>(4) Scale durations according to the tempo</b>
+
+    <p>Here's where we actually make the polytempo stuff happen.
+    We use Lilypond's <code>\scaleDurations</code> to scale the duration of each tempo mark's section.
+    The amount we need to scale by is 100/bpm (any other number can be used besides 100, as long as it is consistent). <code>\scaleDurations</code> accepts a fraction, so this is pretty easy:</p>
+
+<pre>
+\version "2.24.3"
+
+\score {
+
+<<
+  \new Staff {
+    \set Staff.measureBarType = ""
+    \tempo 4 = 45
+    \scaleDurations 100/45 {a'4 b'4 c''4 e''4 \bar "|"}
+    \tempo 4 = 90
+    \scaleDurations 100/90 { d''4 c''4 b'4 a'4 \bar "|" }
+  }
+  \new Staff {
+    \set Staff.measureBarType = ""
+    \tempo 4 = 60
+    \scaleDurations 100/60 {
+      a'4 b'4 c''4 e''4 \bar "|"
+      d''4 c''4 b'4 a'4 \bar "|"
+    }
+  }
+>>
+
+	\layout {
+		\enablePolymeter
+		\context {
+			\Score
+			forbidBreakBetweenBarLines = ##f
+			\remove Metronome_mark_engraver
+		}
+		\context {
+			\Voice
+			\consists Metronome_mark_engraver
+			\remove Forbid_line_break_engraver
+		}
+	}
+
+	\midi {
+		\context {
+			\Score
+			\remove Tempo_performer
+			\remove Time_signature_performer
+		}
+	}
+}
+</pre>
+
+    <p>Note that if you have fractional or decimal bpms, you'll need to convert them into an improper fraction first.
+    When I needed to do this, I just plugged 100/bpm into <a href="https://www.wolframalpha.com/">WolframAlpha</a>, so it's not too bad.</p>
+
+    <b>(5) That's it!</b>
+
+    </p>Now Lilypond should properly generate a polytempo score and MIDI! Note that to have MIDI playback at the right speed, set the BPM in your sequencer to 100 (or whatever you used as the numerator for the scaleDurations fractions.)</p>
+
+    <p>The outputted score of this example can be found here: <a href="example.pdf">example.pdf</a>.
+    Here's the MIDI-generated audio:</p>
+    <p> <audio controls><source src="example.mp3" type="audio/mpeg"></audio> </p>
+
+    <b>Final thoughts</b>
+    
+    <p>Firstly, I want to point out that Lilypond does not support fractional or decimal tempo marks by default.
+    Here's a custom function I used to get them, at least defined for quarter notes:</p>
+
+<pre>
+\version "2.24.3"
+
+quarterTempoManual = #(define-scheme-function
+(bpm)
+(string?)
+#{
+\tempo \markup {
+	\concat {
+		\smaller \general-align #Y #DOWN \note{4} #1
+	" = "
+	$bpm
+	}
+}
+#}
+)
+</pre>
+
+    <p>Hopefully this is useful. As always, please let me know if there's anything I should clarify. Thanks for reading.</p>
+
+		updated 2024-06-03
+    <hr/>
+    <sub>All content copyright (c) Dmitri Volkov 2024 unless otherwise noted.</sub>
+  </div>
+</body>
+</html>
