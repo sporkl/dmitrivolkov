@@ -1,0 +1,243 @@
+<!-- template.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Asynchronous Programming with Continuations (Dmitri Volkov)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/custom.css">
+  <link rel="icon" type="image/png" href="static/favicon.png">
+</head>
+<body>
+  <div class="container">
+    <div class="header"><iframe class="header" src="/header.html" width="100%" scrolling="no"></iframe></div>
+    <h1>Asynchronous Programming with Continuations</h1>
+    
+    <p>Recently wrote a toy asynchronous runtime in Racket, inspired by the new OCaml 5 effect system, as an example of where continuations can be useful.</p>
+    <p>Here's a gist with the full code: <a href="https://gist.github.com/sporkl/ebf4e11397249f17477bf2bebb9ace3e">https://gist.github.com/sporkl/ebf4e11397249f17477bf2bebb9ace3e</a></p>
+    <p>The rest of this page is a more detailed explanation of how this works, assuming a basic knowledge of Scheme or Racket.
+    Note that I'm not an expert in this, and this was largely written for my own curiosity/learning.
+    Please feel free to let me know if any of this seems amiss!</p>
+
+    <h2>Continuations</h2>
+
+    <p>First a brief explanation of continuations. In Racket, continuations can be created with <code>(let/cc k ...)</code> and introduce a function (here named <code>k</code>) into scope for the <code>...</code>.
+    This function causes <code>(let/cc k ...)</code> to return whatever values the function was applied to. If the function is never applied, it just returns whatever the return value of the <code>...</code> is.</p>
+
+    <p>A few examples:<p>
+
+<pre><code>(let/cc k
+  (k 5))
+; returns 5</code></pre>
+
+<pre><code>(let/cc never-use-this-k-for-some-reason
+  5)
+; returns 5</code></pre>
+
+<pre><code>(let/cc k
+  (letrec
+    ([f ; seems like it would loop infinitely... (it recursively calls itself without a base case)
+      (lambda ()
+        (begin
+          (k 5) ; ... but we return 5 from the outer let/cc before it has the chance to
+          (f)))])
+    (f)))
+; returns 5</code></pre>
+
+    <p>The last example demonstrates that one use of continuations is to do early returns for recursive functions.
+    It's also possible to do funky stuff like returning the continuation itself from the <code>let/cc</code> block, which is something that will come in handy.</p>
+
+<pre><code>(let ([cont (let/cc k k)])
+  (cont cont))
+; loops infinitely</pre></code>
+    
+    <p>Here, the let/cc returns the continuation that causes the let/cc itself to return. This continuation, when called, causes program execution to "rewind" back to the let/cc and have it return instead whatever the continuation is called with.
+    In this example, the continuation is called with itself as an argument, causing the let/cc to return the same continuation every time, resulting in an infinite loop.
+    Because continuations are able to "rewind" like this, they are often considered to be the time travel of programming.
+    In which case this program would be one of those time loop movies I guess.</p>
+
+    <h2>Asynchronicity</h2>
+
+    <p>To demonstrate how continuations are useful, I'll use a toy asynchronous runtime that lets some functions wait while others do work, such that the waiting functions don't get in the way of the working ones. In the real world, waiting functions could be waiting for user input, or for network queries, or the like; because these are doing something besides just executing a program, we call them "effects." But to keep things simple here, the only ones we'll worry about are: doing nothing for a certain number of milliseconds, outputting something, or exiting from the runtime.</p>
+
+    <p>Here's some example programs that we'll be able to run:</p>
+
+<pre><code>(run
+  (list
+    (lambda (ei)
+      (begin
+        (wait 5000 ei)
+        (output "a" ei)))
+    (lambda (ei)
+      (begin
+        (wait 3000 ei)
+        (output "c" ei)))
+    (lambda (ei)
+      (begin
+        (wait 500 ei)
+        (output "b" ei)))))
+; outputs "b" "c" "a" (on separate newlines)</code></pre>
+
+<pre><code>(run
+  (list
+    (lambda (ei)
+      (letrec
+        ([f
+           (lambda (x)
+             (begin
+               (output x ei)
+               (f (add1 x))))])
+        (f 0)))
+    (lambda (ei)
+      (begin
+        (wait 3000 ei)
+        (exit 'done ei)))))
+; prints increasing numbers for 3 seconds
+; then stops, returning 'done
+</code></pre>
+
+    <p>The basic idea is that we have functions for producing effects (such as <code>wait</code>) and a function for handling effects. The functions that produce effects will grab a continuation and pass it, along with information about their effect, to a queue of effects. Then they'll pass control over to the effect handling function. The effect handling function (will call it "effect handler" going forward) iterates over the effect queue, handling effects, and returning control of executions back to the functions (by using the provided continuations) as neccesary.</p>
+
+    <p>Firstly, defining a representation of effects:</p>
+
+    <pre><code>; an effect is one of
+; `(exit ,any)
+; `(wait-until ,time ,k)
+; `(output ,s ,k)
+; `(continue ,k)</code></pre>
+
+    <p>Here we're using tagged lists to hold onto the needed information for effects. As mentioned above, the effects we're enabling here are:</p>
+    <ul>
+      <li>exit, which stops the runtime and causes it to return</li>
+      <li>wait-until, which waits until the current millisecond count matches the value of its' <code>time</code> argument, before calling its continuation</li>
+      <li>output, which just prints stuff</li>
+      <li>continue, which just calls its continuation</li>
+    </ul>
+
+    <p>Here's some straightforward code for the queue of effects:</p>
+
+    <pre><code>(define pop-effect!
+  (lambda (es)
+    (match (unbox es)
+      [`() `(exit (void))]
+      [`(,a . ,d)
+        (begin
+          (set-box! es d)
+          a)])))
+
+(define queue-effect!
+  (lambda (e es)
+    (set-box!
+      es
+      (append (unbox es) (list e)))))</code></pre>
+
+    <p>Note that we have it return an exit effect when there's nothing left in the queue, so that the effect handler stops running</p>
+
+    <p>Next up, the functions that create effects and add them to the queue:
+<pre><code>(define exit
+  (lambda (any ei)
+    (match-let ([`(effect-info ,eh ,es) ei])
+      (begin
+        (queue-effect! `(exit ,any) es)
+        (eh eh)))))
+
+(define wait
+  (lambda (ms ei)
+    (match-let ([`(effect-info ,eh ,es) ei])
+      (let/cc k
+        (begin
+          (queue-effect! `(wait-until ,(+ (current-milliseconds) ms) ,k) es)
+          (eh eh))))))
+
+(define output
+  (lambda (s ei)
+    (match-let ([`(effect-info ,eh ,es) ei])
+      (let/cc k
+        (begin
+          (queue-effect! `(output ,s ,k) es)
+          (eh eh))))))
+
+(define continue
+  (lambda (ei)
+    (match-let ([`(effect-info ,eh ,es) ei])
+      (let/cc k
+        (begin
+          (queue-effect! `(continue ,k) es)
+          (eh eh))))))</code></pre>
+
+    <p>Note that, beyond the information relevant to their effects, these functions also expect an <code>ei</code> (short for effect info) argument.
+    Here, it's expected to be a tagged list with two pieces of information: a continuation that jumps to the effect handler (<code>eh</code>), and the effect queue (<code>es</code>).
+    We need the effect queue so that we can add effects to it, and a continuation to the effect handler so that we can pass control to it.
+    Also note that that the wait effect function adds a wait-until effect, with a target time calculated by adding the current time to the number of milliseconds that should be waited.</p>
+
+    <p>Next up is the effect handler itself:</p>
+
+<pre><code>(define handle-effects
+  (lambda (es)
+    (let ([eh (let/cc k k)])
+      (match (pop-effect! es)
+        [`(exit ,any) any]
+        [`(wait-until ,time ,k)
+          (cond
+            [(> (current-milliseconds) time)
+             (begin
+               (k `(effect-info ,eh ,es))
+               (eh eh))]
+            [else
+              (begin
+                (queue-effect! `(wait-until ,time ,k) es)
+                (eh eh))])]
+        [`(output ,s ,k)
+          (begin
+            (println s)
+            (k `(effect-info ,eh ,es))
+            (eh eh))]
+        [`(continue ,k)
+          (begin
+            (k `(effect-info ,eh ,es))
+            (eh eh))]))))
+  </pre></code>
+
+    <p>This function takes in the effect queue, then grabs a continuation to the top of its own execution. It then processes the top item in the queue, before jumping back to the top using its continuation. Each effect is handled as follows:</p>
+    <ul>
+      <li>The exit effect is handled just by returning whatever value the exit effect was holding, and NOT calling the effect handler continuation.</li>
+      <li>The wait-until effect just checks if it is past the time it is waiting for, and either returning control to the calling function (by using the continuation) or re-queing the effect.</li>
+      <li>The output effect just prints before returning control.</li>
+      <li>The continue effect just returns control.</li>
+    </ul>
+
+    <p>Note that the exit effect would not work properly if we just called <code>effect-handler</code>, rather than jumping to its continuation. This is because we want the exit effect to return from the earliest <code>effect-handler</code> call; if we don't do this, then a piece of code that calls the exit effect before some other code will end up executing the other code. For example, the second example program above ("prints increasing numbers for 3 seconds") wouldn't work properly.</p>
+
+    <p>Also note that we provide an effect-info when calling the continuations that return control. This is to "inject" the necessary information into the functions which use effects. I'll explain this more in a bit. The final step is to provide a way to actually run the effect hander:</p>
+
+<pre><code>(define run
+  (lambda (l)
+    (let
+      ([initial-effects
+         (map
+           (lambda (f)
+             `(continue ,f))
+           l)])
+      (handle-effects (box initial-effects)))))</pre></code>
+
+<p>Here, the <code>run</code> function expects a list of functions that each take one argument. It wraps these in continue effects, then uses them as the initial effects list for the effect handler.</p>
+<p>Remember that continuations are called the same way as functions. Therefore, defining functions can be used to "manually" create continuations (this should be familiar to those who know about continuation-passing style).</p>
+<p>Also, because the functions which queue effects need the effect-info parameter, we take this as an argument to the functions.
+This is why we "inject" effectinfos in the effect handler above. <sub>It might've been clearer to have a "start" effect instead of a "continue" effect, which would be the only one that injects an effect-info.
+  Then effects would be open to have other values when returning, so it would be possible to define e.g. a "read-input" effect.
+  But for this toy example, I don't think it matters too much.</sub> </p>
+
+<p>That's about it, hopefully this makes sense. Please feel free to let me know if there's anything I should clarify. Thanks for reading!</p>
+
+    <b>Further information:</b>
+    <ul>
+      <li>OCaml manual chapter on effects: <a href="https://ocaml.org/manual/5.0/effects.html">https://ocaml.org/manual/5.0/effects.html</a></li>
+      <li>The Impure Pics video on algebraic effects: <a href="https://youtu.be/GaAe7zGq1zM">https://youtu.be/GaAe7zGq1zM</a></li>
+    </ul>
+
+    updated 2024-09-29
+    <hr/>
+    <sub>All content copyright (c) Dmitri Volkov 2024 unless otherwise noted.</sub>
+  </div>
+</body>
+</html>
