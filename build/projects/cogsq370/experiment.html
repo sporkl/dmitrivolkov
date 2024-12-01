@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Audio Perception Experiment</title>
+		<script src="https://unpkg.com/jspsych@7.3.4"></script>
+		<script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
+		<script src="https://unpkg.com/@jspsych/plugin-call-function@1.1.3"></script>
+		<script src="https://unpkg.com/tone"></script>
+    <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body></body>
+	<script>
+		// utility sleep function
+		async function sleep(ms) {
+			await new Promise(resolve => setTimeout(resolve, ms));
+		}
+
+		// initialize jsPsych
+		const jsPsych = initJsPsych({
+			on_finish: function() {
+				jsPsych.data.displayData();
+			}
+		});
+
+		const delta = 0.01
+		const base_period = 500;
+		const base_loudness = 1;
+		
+		// initialize tonejs for generating audio
+		const gain = new Tone.Gain(1); // use gain.gain.value to set gain amount
+		const noise = new Tone.Noise("pink");
+		noise.volume.value = -12;
+		noise.connect(gain);
+		gain.toDestination();
+
+		// play stimulus function
+		const pulse_width = 50;
+		async function play_stimulus(period, loudness) {
+			console.log(period)
+			console.log(loudness)
+			gain.gain.value = loudness;
+			for (let i = 0; i < 4; i++) {
+				noise.start();
+				await sleep(pulse_width);
+				noise.stop();
+				await sleep(period - pulse_width);
+			}
+		}
+
+		// introduction.
+		// f if same, j if different
+		const introduction_trial = {
+			type: jsPsychHtmlKeyboardResponse,
+			stimulus: `
+Thank you for participating in this experiment.
+This experiment tests auditory perception, and will take about 15 minutes.
+<br>
+In this experiment, you will repeatedly hear two sets of four pulses, and press "f" if both sets are the same, or "j" if they are different.
+<br>
+The next page is for configuring audio. Please lower your volume before continuing.
+<br>
+Please press "n" to advance.
+`,
+			choices: ['n'],
+		};
+
+		// have them adjust the computer volume so that sound plays back at a comfortable level
+		const start_setup_noise_trial = {
+			type: jsPsychCallFunction,
+			func: function() {
+				noise.volume.value = -9;
+				noise.start();
+			}
+		}
+
+		const setup_noise_trial = {
+			type: jsPsychHtmlKeyboardResponse,
+			stimulus: `Please adjust your system volume to a comfortable level. You may also adjust during the experiment. Press "n" once complete.`,
+			choices: ['n'],
+		}
+
+		const end_setup_noise_trial = {
+			type: jsPsychCallFunction,
+			async: true,
+			func: async function(k) {
+				noise.stop();
+				noise.volume.value = -12;
+				await sleep(100);
+				k();
+			}
+		}
+
+		const setup_procedure = {
+			timeline: [
+				start_setup_noise_trial,
+				setup_noise_trial,
+				end_setup_noise_trial
+			]
+		}
+
+		// same-different for loudness, including introduction
+		let loudness_ratio = 1.3;
+		let loudness_different = false;
+		let loudness_less = false;
+		let different_first = false;
+		let correct_tally = 0;
+
+		const loudness_play_trial = {
+			type: jsPsychCallFunction,
+			async: true,
+			func: async function(k) {
+				console.log("loudness trial");
+				loudness_different = Math.random() < 0.5;
+				if (loudness_different) {
+					loudness_less = Math.random() < 0.5;
+					different_first = Math.random() < 0.5;
+
+					let ratio_to_use = 1.;
+					if (loudness_less) {
+						ratio_to_use = 1 / loudness_ratio;
+					} else {
+						ratio_to_use = loudness_ratio;
+					}
+
+					if (different_first) {
+						await play_stimulus(base_period, base_loudness * ratio_to_use);
+						await sleep(2000);
+						await play_stimulus(base_period, base_loudness);
+					} else {
+						await play_stimulus(base_period, base_loudness);
+						await sleep(2000);
+						await play_stimulus(base_period, base_loudness * ratio_to_use);
+					}
+				} else {
+					await play_stimulus(base_period, base_loudness);
+					await sleep(2000);
+					await play_stimulus(base_period, base_loudness);
+				}
+				k();
+			},
+		}
+
+		const loudness_response_trial = {
+			type: jsPsychHtmlKeyboardResponse,
+			stimulus: `Press "f" if same, "j" if different.`,
+			on_finish: function(data) {
+				let correct_response = loudness_different ? 'j' : 'f';
+				data.correct = jsPsych.pluginAPI.compareKeys(data.response, correct_response);
+
+				if (data.correct) {
+					correct_tally += 1;
+						if (correct_tally >= 2) {
+							loudness_ratio = Math.max(1., loudness_ratio - delta);
+							correct_tally = 0
+						}
+				} else {
+					correct_tally = 0;
+					loudness_ratio += delta;
+				}
+
+				data.ratio = loudness_ratio;
+				data.is_difference = loudness_different;
+				data.different_first = different_first;
+				data.trial_type = "loudness";
+			}
+		}
+
+		const loudness_procedure = {
+			timeline: [
+				loudness_play_trial,
+				loudness_response_trial
+			],
+			repetitions: 50
+		}
+
+		const loudness_intro_trial = {
+			type: jsPsychHtmlKeyboardResponse,
+			stimulus: `
+For this block, the pulses may vary in <em>loudness</em>.
+Press "f" if the sets of pulses are the same loudness, or "j" if they are of different loudness.
+<br>
+Press "n" to start the block.
+			`,
+			choices: ['n'],
+		}
+
+		const full_loudness_procedure = {
+			timeline: [
+				loudness_intro_trial,
+				loudness_procedure
+			]
+		}
+
+		// same-different for tempo, including tempo
+		let tempo_ratio = 1.3;
+		let tempo_different = false;
+		let tempo_less = false;
+		different_first = false;
+		correct_tally = 0;
+
+		const tempo_play_trial = {
+			type: jsPsychCallFunction,
+			async: true,
+			func: async function(k) {
+				console.log("tempo play trial");
+				tempo_different = Math.random() < 0.5;
+				if (tempo_different) {
+					tempo_less = Math.random() < 0.5;
+					let different_first = Math.random() < 0.5;
+
+					let ratio_to_use = 1.;
+					if (tempo_less) {
+						ratio_to_use = 1 / tempo_ratio;
+					} else {
+						ratio_to_use = tempo_ratio;
+					}
+
+					if (different_first) {
+						await play_stimulus(base_period * ratio_to_use, base_loudness);
+						await sleep(2000);
+						await play_stimulus(base_period, base_loudness);
+					} else {
+						await play_stimulus(base_period, base_loudness);
+						await sleep(2000);
+						await play_stimulus(base_period * ratio_to_use, base_loudness);
+					}
+				} else {
+					await play_stimulus(base_period, base_loudness);
+					await sleep(2000);
+					await play_stimulus(base_period, base_loudness);
+				}
+				k();
+			},
+		}
+
+		const tempo_response_trial = {
+			type: jsPsychHtmlKeyboardResponse,
+			stimulus: `Press "f" if same, "j" if different.`,
+			on_finish: function(data) {
+				let correct_response = tempo_different ? 'j' : 'f';
+				data.correct = jsPsych.pluginAPI.compareKeys(data.response, correct_response);
+
+				if (data.correct) {
+					correct_tally += 1;
+						if (correct_tally >= 2) {
+							tempo_ratio = Math.max(1., tempo_ratio - delta);
+							correct_tally = 0
+						}
+				} else {
+					correct_tally = 0;
+					tempo_ratio += delta;
+				}
+
+				data.ratio = tempo_ratio;
+				data.is_difference = tempo_different;
+				data.different_first = different_first;
+				data.trial_type = "tempo";
+			}
+		}
+
+		const tempo_intro_trial = {
+			type: jsPsychHtmlKeyboardResponse,
+			stimulus: `
+For this block, the pulses may vary in <em>speed/tempo</em>.
+Press "f" if the sets of pulses are the same speed/tempo, or "j" if they are of different speeds/tempos.
+<br>
+Press "n" to start the block.
+			`,
+			choices: ['n'],
+
+		}
+
+		const tempo_procedure = {
+			timeline: [
+				tempo_play_trial,
+				tempo_response_trial
+			],
+			repetitions: 50
+		}
+
+		const full_tempo_procedure = {
+			timeline: [
+				tempo_intro_trial,
+				tempo_procedure
+			]
+		}
+
+
+		// randomize order of prev two
+		const run_procedure = {
+			timeline: (Math.random() < 0.5) ? [full_loudness_procedure, full_tempo_procedure] : [full_tempo_procedure, full_loudness_procedure],
+		}
+
+		// ask them to copy-paste and send me data
+		const conclusion_trial = {
+			type: jsPsychHtmlKeyboardResponse,
+			stimulus: `
+Please follow these steps to submit the experimental data:<br>
+1) finish reading these instructions<br>
+2) advance to the next page<br>
+3) copy all the text on the page<br>
+4) paste the data into an email, and send to dvolkov@iu.edu<br>
+ Thank you very much for participating in this experiment! I may also email in case of future experimentation, but this is unlikely. Please let me know in the email if you would like to receive the results of the experiment, or opt out of potential further communications.<br>
+Once you are done reading these instructions, please press the "n" key to access the results.
+`,
+			choices: ["n"]
+		}
+
+
+		let timeline = [
+			introduction_trial,
+			setup_procedure,
+			run_procedure,
+			conclusion_trial
+		];
+
+		jsPsych.run(timeline);
+
+	</script>
+</html>
